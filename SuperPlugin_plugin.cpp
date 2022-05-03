@@ -66,7 +66,9 @@ bool SuperPlugin::dofunc(const QString & func_name, const V3DPluginArgList & inp
 
 	if (func_name == tr("autoproduce"))
 	{
-		v3d_msg("To be implemented.");
+        this->spui=new SuperUI(callback,input,output);
+        this->spui->assemblyline();
+        //v3d_msg("To be implemented.");
 	}
 	else if (func_name == tr("preprocess"))
 	{

@@ -8,8 +8,12 @@
 #include <QString>
 #include <QFileDialog>
 #include <v3d_interface.h>
+#include <unordered_map>
 #include "Preprocess.h"
+#include "data_io.h"
 //#include "dataflow.h"
+
+using std::unordered_map;
 
 
 class SuperUI:public QWidget{
@@ -21,6 +25,13 @@ public:
         datapath=QFileDialog::getExistingDirectory(this,"data_path","d:");
         this->drawlayout();
         datamem=new DataFlow();
+    }
+    explicit SuperUI(V3DPluginCallback2 & callback,const V3DPluginArgList & input, V3DPluginArgList & output ){
+        this->mcallback=&callback;
+        datamem=new DataFlow();
+        initmap();
+        processcmd(input,output);
+
     }
 
     void drawlayout(){
@@ -41,6 +52,11 @@ public:
     }
 
 
+    void processcmd(const V3DPluginArgList & input, V3DPluginArgList & output);
+    void initmap();
+    void assemblyline();
+    QString finddll(char * funcname);
+    void saveresult(DataFlow* data,int i);
 
 public slots:
     void click_yes();
@@ -48,6 +64,18 @@ public slots:
 private:
     V3DPluginCallback2 *mcallback;
     QWidget *mparent;
+
+//    V3DPluginArgList Input;
+//    V3DPluginArgList Output;
+    char * inputfile;           // can be optimized
+    char * outputfile;
+    vector<vector<char *>> DataFlowArg;
+    QString qinputfile;
+    QStringList inputfilelist;
+
+    unordered_map<QString,QString> fnametodll;
+    unordered_map<QString,QString> dlltomode;
+    //unordered_map<QString,QString> dlltofunc;
 
     QHBoxLayout *hlayout;
     QVBoxLayout *vlayout;

@@ -4,27 +4,25 @@
 #include "v3d_interface.h"
 #include "v3d_plugin_loader.h"
 #include "mainwindow.h"
-#include "dataflow.h"
+//#include "dataflow.h"
 #include <QString>
 
 
 class Preprocess{
 public:
-    Preprocess(V3DPluginCallback2 *callback,QString root){
+    Preprocess(V3DPluginCallback2 *callback){
         mcallback=callback;
-        data_paths=getFileNames(root);
-        Proot=transformproot(root);
-        QString count;
-        count=QString::fromStdString(std::to_string(data_paths.size()));
-        v3d_msg(count);
+//        data_paths=getFileNames(root);
+//        Proot=transformproot(root);
+//        QString count;
+//        count=QString::fromStdString(std::to_string(data_paths.size()));
+//        v3d_msg(count);
         //Predatamem=new DataFlow();
     }
-    QString transformproot(QString root);
-    void gaussfilter(DataFlow *Predatamem);
-    void processcmd(V3DPluginArgList &input, V3DPluginArgList &output);
-
-    QStringList data_paths;
-    QString Proot;
+//    QString transformproot(QString root);
+    void gaussfilter(DataFlow *Predatamem,vector<char *> inputarg,int i,char * funcname);
+//    QStringList data_paths;
+//    QString Proot;
 
     //DataFlow *Predatamem;
 private:
