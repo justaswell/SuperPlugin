@@ -9,7 +9,10 @@
 #include <QFileDialog>
 #include <v3d_interface.h>
 #include <unordered_map>
+#include "basic_surf_objs.h"
 #include "Preprocess.h"
+#include "Computation.h"
+#include "Postprocess.h"
 #include "data_io.h"
 //#include "dataflow.h"
 
@@ -56,8 +59,8 @@ public:
     void initmap();
     void assemblyline();
     QString finddll(char * funcname);
-    void saveresult(DataFlow* data,int i);
-
+    void saveimgresult(DataFlow* data,int i);
+    void saveswcresult(DataFlow* data,int i);
 public slots:
     void click_yes();
 
@@ -71,7 +74,9 @@ private:
     char * outputfile;
     vector<vector<char *>> DataFlowArg;
     QString qinputfile;
-    QStringList inputfilelist;
+    QStringList inputimglist;
+    QStringList inputswclist;
+    QString outresult;
 
     unordered_map<QString,QString> fnametodll;
     unordered_map<QString,QString> dlltomode;

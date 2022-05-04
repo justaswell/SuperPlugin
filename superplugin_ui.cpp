@@ -5,11 +5,20 @@ void SuperUI::processcmd(const V3DPluginArgList &input, V3DPluginArgList &output
 {
     inputfile=((vector<char*> *)(input.at(0).p))->at(0);                    //input.at(0)
     qinputfile=QString(inputfile);
-    inputfilelist=getFileNames(qinputfile);
-    for(int i=0;i<inputfilelist.size();i++){
+    inputimglist=getImgNames(qinputfile);
+    inputswclist=getSwcNames(qinputfile);
+    int count=inputimglist.size()>inputswclist.size()?inputimglist.size():inputswclist.size();
+    for(int i=0;i<count;i++){
+        Image4DSimple *nimg=new Image4DSimple();
+        NeuronTree *nswc=new NeuronTree();
+        datamem->push_img(nimg);
+        datamem->push_swc(nswc);
+    }
+
+    for(int i=0;i<inputimglist.size();i++){
         Image4DSimple *nimg;
 
-        QByteArray ba1=(qinputfile+"\\"+inputfilelist[i]).toLatin1(); //+"\\"+inputfilelist[i]
+        QByteArray ba1=(qinputfile+"\\"+inputimglist[i]).toLatin1(); //+"\\"+inputimglist[i]
         char *inputimg=ba1.data();
 
         char inimage[200];
@@ -21,10 +30,19 @@ void SuperUI::processcmd(const V3DPluginArgList &input, V3DPluginArgList &output
 
         nimg=mcallback->loadImage(inimage);
 
-        datamem->push_img(nimg);
+        datamem->outputimg[i]=nimg;
 
     }
-    qDebug()<<datamem->getimg_cnt();
+    for(int i=0;i<inputswclist.size();i++){
+        NeuronTree *nswc=new NeuronTree();
+        QString swcfile=qinputfile+"\\"+inputimglist[i];
+
+        *nswc=readSWC_file(swcfile);
+
+        datamem->outputswc[i]=nswc;
+
+    }
+
 
 
     outputfile=((vector<char*> *)(output.at(0).p))->at(0);                  //output.at(0)
@@ -32,7 +50,14 @@ void SuperUI::processcmd(const V3DPluginArgList &input, V3DPluginArgList &output
 
     vector<char *> paras=(*(vector<char*> *)(input.at(1).p));               //input.at(1)
     vector<char *> funcparas;
-    for(int i=0;i<paras.size();i++){
+    outresult=QString(paras[0]);
+    qDebug()<<"Your output will be "+outresult+" format.";
+    if(outresult!="img"&&outresult!="swc"){
+        qDebug()<<"Wrong output format! Please input 'img' or 'swc'.";
+        return;
+    }
+
+    for(int i=1;i<paras.size();i++){
 //        qDebug()<<paras[i][0];
         if(paras[i][0]>='a'&&paras[i][0]<='z'){         //DataFlowArg[0] is empty.
             DataFlowArg.push_back(funcparas);
@@ -54,8 +79,10 @@ void SuperUI::processcmd(const V3DPluginArgList &input, V3DPluginArgList &output
 void SuperUI::initmap()
 {
     fnametodll["gf"]="gaussianfilter1.dll";
+    fnametodll["app2"]="vn21.dll";
 
     dlltomode["gaussianfilter1.dll"]="Preprocess";
+    dlltomode["vn21.dll"]="Computation";
 
 }
 
@@ -81,14 +108,31 @@ void SuperUI::assemblyline()
                     pluginInputArgList.push_back(DataFlowArg[i][j]);
                 }
                 for(int j=0;j<datamem->getimg_cnt();j++){
+                    qDebug()<<"Executing NO. "<<i<<" func.";
                     Preproc->gaussfilter(datamem,pluginInputArgList,j,DataFlowArg[i][0]);
                 }
             }
-        }
-        for(int j=0;j<datamem->getimg_cnt();j++){
-            saveresult(datamem,j);
+        }else if(process=="Computation"){
+            if(funcdll=="vn21.dll"){
+                Computation *Comproc=new Computation(this->mcallback);
+                for(int j=1;j<DataFlowArg[i].size();j++){
+                    pluginInputArgList.push_back(DataFlowArg[i][j]);
+                }
+                for(int j=0;j<datamem->getimg_cnt();j++){
+                    qDebug()<<"Executing NO. "<<i<<" func.";
+                    Comproc->vn2(datamem,pluginInputArgList,j,DataFlowArg[i][0]);
+                }
+            }
+        }else if(process=="Postprocess"){
+
         }
 
+    }
+    for(int j=0;j<datamem->getimg_cnt();j++){
+        if(outresult=="img")
+            saveimgresult(datamem,j);
+        else if(outresult=="swc");
+            saveswcresult(datamem,j);
     }
 }
 
@@ -97,10 +141,12 @@ QString SuperUI::finddll(char *funcname)
     return fnametodll[funcname];
 }
 
-void SuperUI::saveresult(DataFlow *data, int i)
+void SuperUI::saveimgresult(DataFlow *data, int i)
 {
-    QString path=QString(outputfile)+"\\"+inputfilelist[i];
-    QByteArray ba1=(path).toLatin1(); //+"\\"+inputfilelist[i]
+    QStringList inputlists;
+    inputlists=inputimglist.size()>inputswclist.size()?inputimglist:inputswclist;
+    QString path=QString(outputfile)+"\\"+inputlists[i]+"_result.tiff";
+    QByteArray ba1=(path).toLatin1(); //+"\\"+inputimglist[i]
     char *otimg=ba1.data();
     //qDebug()<<inputimg;
     char outpath[200];
@@ -110,6 +156,18 @@ void SuperUI::saveresult(DataFlow *data, int i)
             break;
     }
     mcallback->saveImage(data->outputimg[i],outpath);
+}
+
+void SuperUI::saveswcresult(DataFlow *data, int i)
+{
+    QStringList inputlists;
+    inputlists=inputimglist.size()>inputswclist.size()?inputimglist:inputswclist;
+    QString path=QString(outputfile)+"\\"+inputlists[i]+"_result.swc";
+    QStringList infostring;
+    infostring.push_back("##Assembly line");
+    infostring.push_back("##Output by superplugin");
+    qDebug()<<writeSWC_file(path,*data->outputswc[i]);
+
 }
 
 void SuperUI::click_yes()

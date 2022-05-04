@@ -4,7 +4,8 @@
 #include <QDir>
 #include <QStringList>
 
-QStringList getFileNames(const QString &path);
+QStringList getImgNames(const QString &path);
+QStringList getSwcNames(const QString &path);
 
 
 #endif // DATA_IO_H

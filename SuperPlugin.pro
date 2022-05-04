@@ -13,14 +13,19 @@ INCLUDEPATH	+= $$VAA3DPATH/v3d_main/3drenderer
 INCLUDEPATH     += $$V3DMAINPATH
 
 HEADERS	+= SuperPlugin_plugin.h \
+    Computation.h \
+    Postprocess.h \
     Preprocess.h \
     data_io.h \
     superplugin_ui.h
 SOURCES	+= SuperPlugin_plugin.cpp \
+    Computation.cpp \
+    Postprocess.cpp \
     Preprocess.cpp \
     data_io.cpp \
     superplugin_ui.cpp
 SOURCES	+= $$VAA3DPATH/v3d_main/basic_c_fun/v3d_message.cpp
+SOURCES	+= $$VAA3DPATH/v3d_main/basic_c_fun/basic_surf_objs.cpp
 
 TARGET	= $$qtLibraryTarget(SuperPlugin)
 DESTDIR	= $$RUNV3DPATH/plugins/SuperPlugin/

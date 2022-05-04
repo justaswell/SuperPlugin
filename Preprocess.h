@@ -1,12 +1,13 @@
 #ifndef PREPROCESS_H
 #define PREPROCESS_H
-#include "data_io.h"
+//#include "data_io.h"
 #include "v3d_interface.h"
-#include "v3d_plugin_loader.h"
-#include "mainwindow.h"
+//#include "v3d_plugin_loader.h"
+//#include "mainwindow.h"
 //#include "dataflow.h"
 #include <QString>
-
+#include <vector>
+using std::vector;
 
 class Preprocess{
 public:

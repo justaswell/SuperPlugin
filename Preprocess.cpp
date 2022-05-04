@@ -44,7 +44,7 @@ void Preprocess::gaussfilter(DataFlow *Predatamem,vector<char *> inputarg,int i,
     pluginOutputList.push_back(Outputimg);
 
     qDebug()<<"gf start";
-    qDebug()<<mcallback->callPluginFunc("gaussianfilter1.dll","gf",pluginInputList, pluginOutputList);
+    qDebug()<<mcallback->callPluginFunc("gaussianfilter1.dll",funcname,pluginInputList, pluginOutputList);
     qDebug()<<"gf end";
 
     Predatamem->outputimg[i]=otimg;
