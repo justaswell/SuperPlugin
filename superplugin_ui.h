@@ -71,11 +71,13 @@ private:
 //    V3DPluginArgList Input;
 //    V3DPluginArgList Output;
     char * inputfile;           // can be optimized
+//    char * inputapo;
     char * outputfile;
     vector<vector<char *>> DataFlowArg;
     QString qinputfile;
     QStringList inputimglist;
     QStringList inputswclist;
+    QString inputway;
     QString outresult;
 
     unordered_map<QString,QString> fnametodll;

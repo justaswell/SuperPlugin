@@ -18,8 +18,8 @@ void Preprocess::gaussfilter(DataFlow *Predatamem,vector<char *> inputarg,int i,
     vector<char*> pluginInputArgList;               //input args
     pluginInputArgList.push_back("0");
     pluginInputArgList.push_back("0");
-    for(int i=0;i<inputarg.size();i++){
-        pluginInputArgList.push_back(inputarg[i]);
+    for(int j=0;j<inputarg.size();j++){
+        pluginInputArgList.push_back(inputarg[j]);
     }
 
     vector<Image4DSimple *> inputimg;               //input imgs
@@ -139,7 +139,211 @@ void Preprocess::gaussfilter(DataFlow *Predatamem,vector<char *> inputarg,int i,
 //    //qDebug()<<pluginOutputimg.at(0)->getXDim();
 //    //mcallback->saveImage(pluginOutputimg.at(0),out1);
 //    }
-//    qDebug()<<Predatamem->getimg_cnt();
+    //    qDebug()<<Predatamem->getimg_cnt();
+}
+
+void Preprocess::imPreprocess(DataFlow *Predatamem, std::vector<char *> inputarg, int i, char *funcname)
+{
+    V3DPluginArgList pluginInputList, pluginOutputList;
+    V3DPluginArgItem Inputimg, InputParam, Outputimg;
+
+    vector<char*> pluginInputArgList;               //input args
+    pluginInputArgList.push_back("0");
+    pluginInputArgList.push_back("0");
+    for(int j=0;j<inputarg.size();j++){
+        pluginInputArgList.push_back(inputarg[j]);
+    }
+
+    vector<Image4DSimple *> inputimg;               //input imgs
+    inputimg.push_back(Predatamem->outputimg[i]);
+
+    vector<Image4DSimple *> outputimg;              //output imgs
+    Image4DSimple *otimg=new Image4DSimple();
+    outputimg.push_back(otimg);
+
+    Inputimg.type="Inputimg";
+    Inputimg.p = (void*)(&inputimg);
+
+    InputParam.type="InputParam";
+    InputParam.p = (void*)(&pluginInputArgList);
+
+    Outputimg.type="Outputimg";
+    Outputimg.p = (void*)(&outputimg);
+
+    pluginInputList.push_back(Inputimg);
+    pluginInputList.push_back(InputParam);
+
+    pluginOutputList.push_back(Outputimg);
+
+    qDebug()<<"imPreprocess start";
+    qDebug()<<mcallback->callPluginFunc("imPreProcess1.dll",funcname,pluginInputList, pluginOutputList);
+    qDebug()<<"imPreprocess end";
+
+    Predatamem->outputimg[i]=otimg;
+}
+
+void Preprocess::gsdt(DataFlow *Predatamem, std::vector<char *> inputarg, int i, char *funcname)
+{
+    V3DPluginArgList pluginInputList, pluginOutputList;
+    V3DPluginArgItem Inputimg, InputParam, Outputimg;
+
+    vector<char*> pluginInputArgList;               //input args
+    pluginInputArgList.push_back("0");
+    pluginInputArgList.push_back("0");
+    for(int j=0;j<inputarg.size();j++){
+        pluginInputArgList.push_back(inputarg[j]);
+    }
+
+    vector<Image4DSimple *> inputimg;               //input imgs
+    inputimg.push_back(Predatamem->outputimg[i]);
+
+    vector<Image4DSimple *> outputimg;              //output imgs
+    Image4DSimple *otimg=new Image4DSimple;
+    qDebug()<<otimg;
+    outputimg.push_back(otimg);
+
+    Inputimg.type="Inputimg";
+    Inputimg.p = (void*)(&inputimg);
+
+    InputParam.type="InputParam";
+    InputParam.p = (void*)(&pluginInputArgList);
+
+    Outputimg.type="Outputimg";
+    Outputimg.p = (void*)(&outputimg);
+
+    pluginInputList.push_back(Inputimg);
+    pluginInputList.push_back(InputParam);
+
+    pluginOutputList.push_back(Outputimg);
+
+    qDebug()<<"gsdt start";
+    qDebug()<<mcallback->callPluginFunc("gsdt1.dll",funcname,pluginInputList, pluginOutputList);
+    qDebug()<<"gsdt end";
+    //mcallback->saveImage(otimg,"D:\\A_DLcsz\\DLtrain\\fixed_data\\result\\1.tiff");
+    //qDebug()<<otimg->getTotalBytes();
+    //Predatamem->outputimg[i]->cleanExistData();
+    Predatamem->outputimg[i]=otimg;
+}
+
+void Preprocess::cropTerafly(DataFlow *Predatamem, char * inputfile,std::vector<char *> inputarg)
+{
+    V3DPluginArgList pluginInputList, pluginOutputList;
+    V3DPluginArgItem Inputimg, InputParam, Outputimg;
+
+    vector<char*> pluginInputArgList;               //input args
+    pluginInputArgList.push_back("0");
+    //pluginInputArgList.push_back("0");
+    for(int j=1;j<inputarg.size();j++){
+        pluginInputArgList.push_back(inputarg[j]);
+    }
+
+    vector<char *> Inputfile;               //input imgs
+    Inputfile.push_back(inputfile);
+    Inputfile.push_back(inputarg[0]);
+
+//    vector<Image4DSimple *> outputimg;              //output imgs
+//    Image4DSimple *otimg=new Image4DSimple();
+//    outputimg.push_back(otimg);
+
+    Inputimg.type="Inputfile";
+    Inputimg.p = (void*)(&Inputfile);
+
+    InputParam.type="InputParam";
+    InputParam.p = (void*)(&pluginInputArgList);
+
+    Outputimg.type="Outputimg";
+    Outputimg.p = (void*)(Predatamem);
+
+    pluginInputList.push_back(Inputimg);
+    pluginInputList.push_back(InputParam);
+
+    pluginOutputList.push_back(Outputimg);
+
+    qDebug()<<"cropTerafly start";
+    qDebug()<<mcallback->callPluginFunc("cropped3DImageSeries1.dll","cropTerafly",pluginInputList, pluginOutputList);
+    qDebug()<<"cropTerafly end";
+
+    //Predatamem->outputimg[i]=otimg;
+}
+
+void Preprocess::histogramEqualization(DataFlow *Predatamem, std::vector<char *> inputarg, int i, char *funcname)
+{
+    V3DPluginArgList pluginInputList, pluginOutputList;
+    V3DPluginArgItem Inputimg, InputParam, Outputimg;
+
+    vector<char*> pluginInputArgList;               //input args
+    pluginInputArgList.push_back("0");
+    pluginInputArgList.push_back("0");
+    for(int j=0;j<inputarg.size();j++){
+        pluginInputArgList.push_back(inputarg[j]);
+    }
+
+    vector<Image4DSimple *> inputimg;               //input imgs
+    inputimg.push_back(Predatamem->outputimg[i]);
+
+    vector<Image4DSimple *> outputimg;              //output imgs
+    Image4DSimple *otimg=new Image4DSimple();
+    outputimg.push_back(otimg);
+
+    Inputimg.type="Inputimg";
+    Inputimg.p = (void*)(&inputimg);
+
+    InputParam.type="InputParam";
+    InputParam.p = (void*)(&pluginInputArgList);
+
+    Outputimg.type="Outputimg";
+    Outputimg.p = (void*)(&outputimg);
+
+    pluginInputList.push_back(Inputimg);
+    pluginInputList.push_back(InputParam);
+
+    pluginOutputList.push_back(Outputimg);
+
+    qDebug()<<"histogramEqualization start";
+    qDebug()<<mcallback->callPluginFunc("HistogramEqualization1.dll",funcname,pluginInputList, pluginOutputList);
+    qDebug()<<"histogramEqualization end";
+
+    Predatamem->outputimg[i]=otimg;
+}
+
+void Preprocess::standardize(DataFlow *Predatamem, std::vector<char *> inputarg, int i, char *funcname)
+{
+    V3DPluginArgList pluginInputList, pluginOutputList;
+    V3DPluginArgItem Inputimg, InputParam, Outputimg;
+
+    vector<char*> pluginInputArgList;               //input args
+    pluginInputArgList.push_back("0");
+    pluginInputArgList.push_back("0");
+    for(int j=0;j<inputarg.size();j++){
+        pluginInputArgList.push_back(inputarg[j]);
+    }
+
+    vector<Image4DSimple *> inputimg;               //input imgs
+    inputimg.push_back(Predatamem->outputimg[i]);
+
+    vector<Image4DSimple *> outputimg;              //output imgs
+    Image4DSimple *otimg=new Image4DSimple();
+    outputimg.push_back(otimg);
+
+    Inputimg.type="Inputimg";
+    Inputimg.p = (void*)(&inputimg);
+
+    InputParam.type="InputParam";
+    InputParam.p = (void*)(&pluginInputArgList);
+
+    Outputimg.type="Outputimg";
+    Outputimg.p = (void*)(&outputimg);
+
+    pluginInputList.push_back(Inputimg);
+    pluginInputList.push_back(InputParam);
+
+    pluginOutputList.push_back(Outputimg);
+
+    qDebug()<<"standardize start";
+    qDebug()<<mcallback->callPluginFunc("standardize_image1.dll",funcname,pluginInputList, pluginOutputList);
+    qDebug()<<"standardize end";
+
+    Predatamem->outputimg[i]=otimg;
 }
 
 
