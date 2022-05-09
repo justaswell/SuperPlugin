@@ -29,6 +29,7 @@ void SuperUI::processcmd(const V3DPluginArgList &input, V3DPluginArgList &output
         inputimglist=getImgNames(qinputfile);
         inputswclist=getSwcNames(qinputfile);
         int count=inputimglist.size()>inputswclist.size()?inputimglist.size():inputswclist.size();
+        datamem->dataname=inputimglist.size()>inputswclist.size()?inputimglist:inputswclist;
         for(int i=0;i<count;i++){
             Image4DSimple *nimg=new Image4DSimple();
             NeuronTree *nswc=new NeuronTree();
@@ -84,6 +85,24 @@ void SuperUI::processcmd(const V3DPluginArgList &input, V3DPluginArgList &output
         qDebug()<<DataFlowArg.size()-1;
     }else{
         qDebug()<<"Your first func must be 'cropTerafly'!";
+        inputfile=((vector<char*> *)(input.at(0).p))->at(0);                    //input.at(0)
+        //qinputfile=QString(inputfile);
+        outputfile=((vector<char*> *)(output.at(0).p))->at(0);
+        vector<char *> funcparas;
+        for(int i=2;i<paras.size();i++){
+            if(paras[i][0]>='a'&&paras[i][0]<='z'){         //DataFlowArg[0] is empty.
+                DataFlowArg.push_back(funcparas);
+                funcparas.clear();
+                funcparas.push_back(paras[i]);
+                if(i==paras.size()-1)
+                    DataFlowArg.push_back(funcparas);
+                continue;
+            }
+            funcparas.push_back(paras[i]);
+            if(i==paras.size()-1)
+                DataFlowArg.push_back(funcparas);
+        }
+        qDebug()<<DataFlowArg.size()-1;
     }
 }
 
@@ -97,12 +116,11 @@ void SuperUI::initmap()
     fnametodll["im_fft_filter"]="imPreProcess1.dll";
     fnametodll["im_grey_morph"]="imPreProcess1.dll";
     fnametodll["im_enhancement"]="imPreProcess1.dll";
-    fnametodll["im_quality_check"]="imPreProcess1.dll";
-    fnametodll["im_test_enhancement"]="imPreProcess1.dll";
     fnametodll["gsdt"]="gsdt1.dll";
     fnametodll["cropTerafly"]="cropped3DImageSeries1.dll";
     fnametodll["he"]="HistogramEqualization1.dll";
     fnametodll["standardize"]="standardize_image1.dll";
+    fnametodll["dtc"]="datatypeconvert1.dll";
 
     dlltomode["gaussianfilter1.dll"]="Preprocess";
     dlltomode["imPreProcess1.dll"]="Preprocess";
@@ -110,6 +128,7 @@ void SuperUI::initmap()
     dlltomode["gsdt1.dll"]="Preprocess";
     dlltomode["HistogramEqualization1.dll"]="Preprocess";
     dlltomode["standardize_image1.dll"]="Preprocess";
+    dlltomode["datatypeconvert1.dll"]="Preprocess";
     dlltomode["vn21.dll"]="Computation";
 
 }
@@ -183,6 +202,15 @@ void SuperUI::assemblyline()
                     qDebug()<<"Executing NO. "<<i<<" func.";
                     Preproc->standardize(datamem,pluginInputArgList,j,DataFlowArg[i][0]);
                 }
+            }else if(funcdll=="datatypeconvert1.dll"){
+                pluginInputArgList.clear();
+                for(int j=1;j<DataFlowArg[i].size();j++){
+                    pluginInputArgList.push_back(DataFlowArg[i][j]);
+                }
+                for(int j=0;j<datamem->getimg_cnt();j++){
+                    qDebug()<<"Executing NO. "<<i<<" func.";
+                    Preproc->datatypeconvert(datamem,pluginInputArgList,j,DataFlowArg[i][0]);
+                }
             }
         }else if(process=="Computation"){
             Computation *Comproc=new Computation(this->mcallback);
@@ -223,9 +251,9 @@ QString SuperUI::finddll(char *funcname)
 
 void SuperUI::saveimgresult(DataFlow *data, int i)
 {
-    QStringList inputlists;
-    inputlists=inputimglist.size()>inputswclist.size()?inputimglist:inputswclist;
-    QString path=QString(outputfile)+"\\"+inputlists[i]+"_result.tiff";
+//    QStringList inputlists;
+//    inputlists=inputimglist.size()>inputswclist.size()?inputimglist:inputswclist;
+    QString path=QString(outputfile)+"\\"+datamem->dataname[i]+"_result.tiff";
     QByteArray ba1=(path).toLatin1();
     char *otimg=ba1.data();
     //qDebug()<<inputimg;
@@ -250,9 +278,9 @@ void SuperUI::saveimgresult(DataFlow *data, int i)
 
 void SuperUI::saveswcresult(DataFlow *data, int i)
 {
-    QStringList inputlists;
-    inputlists=inputimglist.size()>inputswclist.size()?inputimglist:inputswclist;
-    QString path=QString(outputfile)+"\\"+inputlists[i]+"_result.swc";
+//    QStringList inputlists;
+//    inputlists=inputimglist.size()>inputswclist.size()?inputimglist:inputswclist;
+    QString path=QString(outputfile)+"\\"+datamem->dataname[i]+"_result.swc";
     QStringList infostring;
     infostring.push_back("##Assembly line");
     infostring.push_back("##Output by superplugin");

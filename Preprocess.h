@@ -27,6 +27,7 @@ public:
     void cropTerafly(DataFlow *Predatamem,char * inputfile,vector<char *> inputarg);
     void histogramEqualization(DataFlow *Predatamem,vector<char *> inputarg,int i,char * funcname);
     void standardize(DataFlow *Predatamem,vector<char *> inputarg,int i,char * funcname);
+    void datatypeconvert(DataFlow *Predatamem,vector<char *> inputarg,int i,char * funcname);
 //    QStringList data_paths;
 //    QString Proot;
 

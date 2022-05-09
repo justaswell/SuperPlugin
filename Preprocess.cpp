@@ -227,6 +227,7 @@ void Preprocess::gsdt(DataFlow *Predatamem, std::vector<char *> inputarg, int i,
 
 void Preprocess::cropTerafly(DataFlow *Predatamem, char * inputfile,std::vector<char *> inputarg)
 {
+    qDebug()<<inputarg.size();
     V3DPluginArgList pluginInputList, pluginOutputList;
     V3DPluginArgItem Inputimg, InputParam, Outputimg;
 
@@ -342,6 +343,46 @@ void Preprocess::standardize(DataFlow *Predatamem, std::vector<char *> inputarg,
     qDebug()<<"standardize start";
     qDebug()<<mcallback->callPluginFunc("standardize_image1.dll",funcname,pluginInputList, pluginOutputList);
     qDebug()<<"standardize end";
+
+    Predatamem->outputimg[i]=otimg;
+}
+
+void Preprocess::datatypeconvert(DataFlow *Predatamem, std::vector<char *> inputarg, int i, char *funcname)
+{
+    V3DPluginArgList pluginInputList, pluginOutputList;
+    V3DPluginArgItem Inputimg, InputParam, Outputimg;
+
+    vector<char*> pluginInputArgList;               //input args
+    pluginInputArgList.push_back("0");
+    pluginInputArgList.push_back("0");
+    for(int j=0;j<inputarg.size();j++){
+        pluginInputArgList.push_back(inputarg[j]);
+    }
+
+    vector<Image4DSimple *> inputimg;               //input imgs
+    inputimg.push_back(Predatamem->outputimg[i]);
+    qDebug()<<Predatamem->outputimg[i]->getDatatype();
+    vector<Image4DSimple *> outputimg;              //output imgs
+    Image4DSimple *otimg=new Image4DSimple();
+    outputimg.push_back(otimg);
+
+    Inputimg.type="Inputimg";
+    Inputimg.p = (void*)(&inputimg);
+
+    InputParam.type="InputParam";
+    InputParam.p = (void*)(&pluginInputArgList);
+
+    Outputimg.type="Outputimg";
+    Outputimg.p = (void*)(&outputimg);
+
+    pluginInputList.push_back(Inputimg);
+    pluginInputList.push_back(InputParam);
+
+    pluginOutputList.push_back(Outputimg);
+
+    qDebug()<<"datatypeconvert start";
+    qDebug()<<mcallback->callPluginFunc("datatypeconvert1.dll",funcname,pluginInputList, pluginOutputList);
+    qDebug()<<"datatypeconvert end";
 
     Predatamem->outputimg[i]=otimg;
 }

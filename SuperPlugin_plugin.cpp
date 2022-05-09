@@ -84,7 +84,8 @@ bool SuperPlugin::dofunc(const QString & func_name, const V3DPluginArgList & inp
 	}
 	else if (func_name == tr("help"))
 	{
-		v3d_msg("To be implemented.");
+        printf("\n**** Usage of SuperPlugin ****\n");
+        printf("vaa3d -x SuperPlugin.dll -f autoproduce -i inputfilepath -o outputfilepath -p R//T img//swc func1 para1_1 para1_2 ... func2 para2_1 para2...\n");
 	}
 	else return false;
 
