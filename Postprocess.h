@@ -11,7 +11,8 @@ public:
     Postprocess(V3DPluginCallback2 *callback){
         mcallback=callback;
     }
-
+    void resample_swc(DataFlow *Postdatamem,vector<char *> inputarg,int i,char * funcname);
+    void sort_neuron_swc(DataFlow *Postdatamem,vector<char *> inputarg,int i,char * funcname);
 private:
     V3DPluginCallback2 *mcallback;
 

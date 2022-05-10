@@ -29,6 +29,7 @@ void SuperUI::processcmd(const V3DPluginArgList &input, V3DPluginArgList &output
         inputimglist=getImgNames(qinputfile);
         inputswclist=getSwcNames(qinputfile);
         int count=inputimglist.size()>inputswclist.size()?inputimglist.size():inputswclist.size();
+        //qDebug()<<"count";
         datamem->dataname=inputimglist.size()>inputswclist.size()?inputimglist:inputswclist;
         for(int i=0;i<count;i++){
             Image4DSimple *nimg=new Image4DSimple();
@@ -36,7 +37,7 @@ void SuperUI::processcmd(const V3DPluginArgList &input, V3DPluginArgList &output
             datamem->push_img(nimg);
             datamem->push_swc(nswc);
         }
-
+        //qDebug()<<"count";
         for(int i=0;i<inputimglist.size();i++){
             Image4DSimple *nimg;
 
@@ -55,16 +56,17 @@ void SuperUI::processcmd(const V3DPluginArgList &input, V3DPluginArgList &output
             datamem->outputimg[i]=nimg;
 
         }
+        //qDebug()<<"count";
         for(int i=0;i<inputswclist.size();i++){
             NeuronTree *nswc=new NeuronTree();
-            QString swcfile=qinputfile+"\\"+inputimglist[i];
-
+            QString swcfile=qinputfile+"\\"+inputswclist[i];
+            //qDebug()<<swcfile;
             *nswc=readSWC_file(swcfile);
 
             datamem->outputswc[i]=nswc;
 
         }
-
+        qDebug()<<"count";
         outputfile=((vector<char*> *)(output.at(0).p))->at(0);                  //output.at(0)
 
         vector<char *> funcparas;
@@ -121,6 +123,8 @@ void SuperUI::initmap()
     fnametodll["he"]="HistogramEqualization1.dll";
     fnametodll["standardize"]="standardize_image1.dll";
     fnametodll["dtc"]="datatypeconvert1.dll";
+    fnametodll["resample_swc"]="resample_swc1.dll";
+    fnametodll["sort_swc"]="sort_neuron_swc1.dll";
 
     dlltomode["gaussianfilter1.dll"]="Preprocess";
     dlltomode["imPreProcess1.dll"]="Preprocess";
@@ -130,6 +134,8 @@ void SuperUI::initmap()
     dlltomode["standardize_image1.dll"]="Preprocess";
     dlltomode["datatypeconvert1.dll"]="Preprocess";
     dlltomode["vn21.dll"]="Computation";
+    dlltomode["resample_swc1.dll"]="Postprocess";
+    dlltomode["sort_neuron_swc1.dll"]="Postprocess";
 
 }
 
@@ -225,7 +231,26 @@ void SuperUI::assemblyline()
                 }
             }
         }else if(process=="Postprocess"){
-
+            Postprocess *Postproc=new Postprocess(this->mcallback);
+            if(funcdll=="resample_swc1.dll"){
+                pluginInputArgList.clear();
+                for(int j=1;j<DataFlowArg[i].size();j++){
+                    pluginInputArgList.push_back(DataFlowArg[i][j]);
+                }
+                for(int j=0;j<datamem->getswc_cnt();j++){
+                    qDebug()<<"Executing NO. "<<i<<" func.";
+                    Postproc->resample_swc(datamem,pluginInputArgList,j,DataFlowArg[i][0]);
+                }
+            }else if(funcdll=="sort_neuron_swc1.dll"){
+                pluginInputArgList.clear();
+                for(int j=1;j<DataFlowArg[i].size();j++){
+                    pluginInputArgList.push_back(DataFlowArg[i][j]);
+                }
+                for(int j=0;j<datamem->getswc_cnt();j++){
+                    qDebug()<<"Executing NO. "<<i<<" func.";
+                    Postproc->sort_neuron_swc(datamem,pluginInputArgList,j,DataFlowArg[i][0]);
+                }
+            }
         }
 
     }
