@@ -68,7 +68,6 @@ bool SuperPlugin::dofunc(const QString & func_name, const V3DPluginArgList & inp
 	{
         this->spui=new SuperUI(callback,input,output);
         this->spui->assemblyline();
-        //v3d_msg("To be implemented.");
 	}
 	else if (func_name == tr("preprocess"))
 	{
@@ -84,8 +83,18 @@ bool SuperPlugin::dofunc(const QString & func_name, const V3DPluginArgList & inp
 	}
 	else if (func_name == tr("help"))
 	{
-        printf("\n**** Usage of SuperPlugin ****\n");
+        printf("\n***************************************************************\n");
+        printf("**** Usage of SuperPlugin ****\n");
         printf("vaa3d -x SuperPlugin.dll -f autoproduce -i inputfilepath -o outputfilepath -p R//T img//swc func1 para1_1 para1_2 ... func2 para2_1 para2...\n");
+        printf("Currently, the following functions are supported:\n");
+        printf("gf                          app2            im_sigma_correction     im_subtract_minimum     im_bilateral_filter\n");
+        printf("im_fft_filter               im_grey_morph   im_enhancement          gsdt                    cropTerafly\n");
+        printf("he(HistogramEqualization)   standardize     dtc                     resample_swc            sort_swc\n");
+        printf("The parameters must match their respective functions.\n");
+        printf("The first letter of a function must be lowercase.\n");
+        printf("For example:\n");
+        printf("vaa3d -x SuperPlugin.dll -f autoproduce -i inputfilepath -o outputfilepath -p R img gf 7 7 7 1 3 he app2 NULL 0 AUTO\n");
+        printf("*****************************************************************\n");
 	}
 	else return false;
 
