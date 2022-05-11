@@ -17,8 +17,8 @@ void SuperUI::processcmd(const V3DPluginArgList &input, V3DPluginArgList &output
     }
 
     outresult=QString(paras[1]);
-    if(outresult!="img"&&outresult!="swc"){
-        qDebug()<<"Wrong output format! Please input 'img' or 'swc'.";
+    if(outresult!="img"&&outresult!="swc"&&outresult!="all"){
+        qDebug()<<"Wrong output format! Please input 'img' or 'swc' or 'all'.";
         return;
     }
     qDebug()<<"Your output will be "+outresult+" format.";
@@ -264,6 +264,11 @@ void SuperUI::assemblyline()
         }
         else if(outresult=="swc"){
             qDebug()<<"saving swc!";
+            saveswcresult(datamem,j);
+        }else if(outresult=="all"){
+            qDebug()<<"saving all!";
+            qDebug()<<"Please make sure you had used both img and swc!";
+            saveimgresult(datamem,j);
             saveswcresult(datamem,j);
         }
     }
