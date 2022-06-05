@@ -24,7 +24,7 @@ QStringList SuperPlugin::funclist() const
 {
 	return QStringList()
 		<<tr("autoproduce")
-		<<tr("preprocess")
+        <<tr("batchrun")
 		<<tr("computation")
 		<<tr("postprocess")
 		<<tr("help");
@@ -66,12 +66,13 @@ bool SuperPlugin::dofunc(const QString & func_name, const V3DPluginArgList & inp
 
 	if (func_name == tr("autoproduce"))
 	{
-        this->spui=new SuperUI(callback,input,output);
+        this->spui=new SuperUI(callback,input,output,"autoproduce");
         this->spui->assemblyline();
 	}
-	else if (func_name == tr("preprocess"))
+    else if (func_name == tr("batchrun"))
 	{
-		v3d_msg("To be implemented.");
+        this->spui=new SuperUI(callback,input,output,"batchrun");
+        this->spui->batchrun();
 	}
 	else if (func_name == tr("computation"))
 	{

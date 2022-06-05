@@ -29,11 +29,17 @@ public:
         this->drawlayout();
         datamem=new DataFlow();
     }
-    explicit SuperUI(V3DPluginCallback2 & callback,const V3DPluginArgList & input, V3DPluginArgList & output ){
+    explicit SuperUI(V3DPluginCallback2 & callback,const V3DPluginArgList & input, V3DPluginArgList & output, QString funcname ){
         this->mcallback=&callback;
-        datamem=new DataFlow();
-        initmap();
-        processcmd(input,output);
+        mparent=nullptr;
+        inputfile=outputfile=nullptr;
+        hlayout=nullptr;
+        vlayout=nullptr;
+        preprocess=nullptr;
+        confirm=nullptr;
+        datamem=nullptr;
+        preproc=nullptr;
+        processcmd(input,output,funcname);
 
     }
 
@@ -55,9 +61,17 @@ public:
     }
 
 
-    void processcmd(const V3DPluginArgList & input, V3DPluginArgList & output);
+    void processcmd(const V3DPluginArgList & input, V3DPluginArgList & output, QString funcname);
+
+    //assemblyline init
+    void initautoproduce(const V3DPluginArgList & input, V3DPluginArgList & output);
     void initmap();
     void assemblyline();
+
+    //batchrun init
+    void initbatchrun(const V3DPluginArgList & input, V3DPluginArgList & output);
+    void batchrun();
+
     QString finddll(char * funcname);
     void saveimgresult(DataFlow* data,int i);
     void saveswcresult(DataFlow* data,int i);
@@ -68,15 +82,15 @@ private:
     V3DPluginCallback2 *mcallback;
     QWidget *mparent;
 
-//    V3DPluginArgList Input;
-//    V3DPluginArgList Output;
     char * inputfile;           // can be optimized
 //    char * inputapo;
     char * outputfile;
+    vector<char *> paras;
     vector<vector<char *>> DataFlowArg;
     QString qinputfile;
     QStringList inputimglist;
     QStringList inputswclist;
+    QStringList inputlist;
     QString inputway;
     QString outresult;
 

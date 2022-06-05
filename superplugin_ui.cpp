@@ -1,10 +1,19 @@
 #include "superplugin_ui.h"
 
 
-void SuperUI::processcmd(const V3DPluginArgList &input, V3DPluginArgList &output)
+void SuperUI::processcmd(const V3DPluginArgList &input, V3DPluginArgList &output,QString funcname)
 {
+    if(funcname=="autoproduce")
+        initautoproduce(input,output);
+    else if(funcname=="batchrun")
+        initbatchrun(input,output);
+}
 
-    vector<char *> paras=(*(vector<char*> *)(input.at(1).p));               //input.at(1)
+void SuperUI::initautoproduce(const V3DPluginArgList &input, V3DPluginArgList &output)
+{
+    datamem=new DataFlow();
+    initmap();
+    paras=(*(vector<char*> *)(input.at(1).p));               //input.at(1)
     inputway=QString(paras[0]);
     if(inputway!="R"&&inputway!="T"){
         qDebug()<<"Wrong output parameter! Please input 'R' or 'T'.";
@@ -110,32 +119,32 @@ void SuperUI::processcmd(const V3DPluginArgList &input, V3DPluginArgList &output
 
 void SuperUI::initmap()
 {
-    fnametodll["gf"]="gaussianfilter1.dll";
-    fnametodll["app2"]="vn21.dll";
-    fnametodll["im_sigma_correction"]="imPreProcess1.dll";
-    fnametodll["im_subtract_minimum"]="imPreProcess1.dll";
-    fnametodll["im_bilateral_filter"]="imPreProcess1.dll";
-    fnametodll["im_fft_filter"]="imPreProcess1.dll";
-    fnametodll["im_grey_morph"]="imPreProcess1.dll";
-    fnametodll["im_enhancement"]="imPreProcess1.dll";
-    fnametodll["gsdt"]="gsdt1.dll";
-    fnametodll["cropTerafly"]="cropped3DImageSeries1.dll";
-    fnametodll["he"]="HistogramEqualization1.dll";
-    fnametodll["standardize"]="standardize_image1.dll";
-    fnametodll["dtc"]="datatypeconvert1.dll";
-    fnametodll["resample_swc"]="resample_swc1.dll";
-    fnametodll["sort_swc"]="sort_neuron_swc1.dll";
+    fnametodll["gf"]="gspaussianfilter.dll";
+    fnametodll["app2"]="vspn2.dll";
+    fnametodll["im_sigma_correction"]="ispmPreProcess.dll";
+    fnametodll["im_subtract_minimum"]="ispmPreProcess.dll";
+    fnametodll["im_bilateral_filter"]="ispmPreProcess.dll";
+    fnametodll["im_fft_filter"]="ispmPreProcess.dll";
+    fnametodll["im_grey_morph"]="ispmPreProcess.dll";
+    fnametodll["im_enhancement"]="ispmPreProcess.dll";
+    fnametodll["gsdt"]="gspsdt.dll";
+    fnametodll["cropTerafly"]="cspropped3DImageSeries.dll";
+    fnametodll["he"]="HspistogramEqualization.dll";
+    fnametodll["standardize"]="ssptandardize_image.dll";
+    fnametodll["dtc"]="dspatatypeconvert.dll";
+    fnametodll["resample_swc"]="rspesample_swc.dll";
+    fnametodll["sort_swc"]="ssport_neuron_swc.dll";
 
-    dlltomode["gaussianfilter1.dll"]="Preprocess";
-    dlltomode["imPreProcess1.dll"]="Preprocess";
-    dlltomode["cropped3DImageSeries1.dll"]="Preprocess";
-    dlltomode["gsdt1.dll"]="Preprocess";
-    dlltomode["HistogramEqualization1.dll"]="Preprocess";
-    dlltomode["standardize_image1.dll"]="Preprocess";
-    dlltomode["datatypeconvert1.dll"]="Preprocess";
-    dlltomode["vn21.dll"]="Computation";
-    dlltomode["resample_swc1.dll"]="Postprocess";
-    dlltomode["sort_neuron_swc1.dll"]="Postprocess";
+    dlltomode["gspaussianfilter.dll"]="Preprocess";
+    dlltomode["ispmPreProcess.dll"]="Preprocess";
+    dlltomode["cspropped3DImageSeries.dll"]="Preprocess";
+    dlltomode["gspsdt.dll"]="Preprocess";
+    dlltomode["HspistogramEqualization.dll"]="Preprocess";
+    dlltomode["ssptandardize_image.dll"]="Preprocess";
+    dlltomode["dspatatypeconvert.dll"]="Preprocess";
+    dlltomode["vspn2.dll"]="Computation";
+    dlltomode["rspesample_swc.dll"]="Postprocess";
+    dlltomode["ssport_neuron_swc.dll"]="Postprocess";
 
 }
 
@@ -156,7 +165,7 @@ void SuperUI::assemblyline()
         qDebug()<<process;
         if(process=="Preprocess"){
             Preprocess * Preproc= new Preprocess(this->mcallback);
-            if(funcdll=="gaussianfilter1.dll"){
+            if(funcdll=="gspaussianfilter.dll"){
                 pluginInputArgList.clear();
                 for(int j=1;j<DataFlowArg[i].size();j++){
                     pluginInputArgList.push_back(DataFlowArg[i][j]);
@@ -165,7 +174,7 @@ void SuperUI::assemblyline()
                     qDebug()<<"Executing NO. "<<i<<" func.";
                     Preproc->gaussfilter(datamem,pluginInputArgList,j,DataFlowArg[i][0]);
                 }
-            }else if(funcdll=="imPreProcess1.dll"){
+            }else if(funcdll=="ispmPreProcess.dll"){
                 pluginInputArgList.clear();
                 for(int j=1;j<DataFlowArg[i].size();j++){
                     pluginInputArgList.push_back(DataFlowArg[i][j]);
@@ -174,7 +183,7 @@ void SuperUI::assemblyline()
                     qDebug()<<"Executing NO. "<<i<<" func.";
                     Preproc->imPreprocess(datamem,pluginInputArgList,j,DataFlowArg[i][0]);
                 }
-            }else if(funcdll=="gsdt1.dll"){
+            }else if(funcdll=="gspsdt.dll"){
                 pluginInputArgList.clear();
                 for(int j=1;j<DataFlowArg[i].size();j++){
                     pluginInputArgList.push_back(DataFlowArg[i][j]);
@@ -183,14 +192,14 @@ void SuperUI::assemblyline()
                     qDebug()<<"Executing NO. "<<i<<" func.";
                     Preproc->gsdt(datamem,pluginInputArgList,j,DataFlowArg[i][0]);
                 }
-            }else if(funcdll=="cropped3DImageSeries1.dll"){
+            }else if(funcdll=="cspropped3DImageSeries.dll"){
                 pluginInputArgList.clear();
                 for(int j=1;j<DataFlowArg[i].size();j++){
                     pluginInputArgList.push_back(DataFlowArg[i][j]);
                 }
                 qDebug()<<"Executing NO. "<<i<<" func.";
                 Preproc->cropTerafly(datamem,inputfile,pluginInputArgList);
-            }else if(funcdll=="HistogramEqualization1.dll"){
+            }else if(funcdll=="HspistogramEqualization.dll"){
                 pluginInputArgList.clear();
                 for(int j=1;j<DataFlowArg[i].size();j++){
                     pluginInputArgList.push_back(DataFlowArg[i][j]);
@@ -199,7 +208,7 @@ void SuperUI::assemblyline()
                     qDebug()<<"Executing NO. "<<i<<" func.";
                     Preproc->histogramEqualization(datamem,pluginInputArgList,j,DataFlowArg[i][0]);
                 }
-            }else if(funcdll=="standardize_image1.dll"){
+            }else if(funcdll=="ssptandardize_image.dll"){
                 pluginInputArgList.clear();
                 for(int j=1;j<DataFlowArg[i].size();j++){
                     pluginInputArgList.push_back(DataFlowArg[i][j]);
@@ -208,7 +217,7 @@ void SuperUI::assemblyline()
                     qDebug()<<"Executing NO. "<<i<<" func.";
                     Preproc->standardize(datamem,pluginInputArgList,j,DataFlowArg[i][0]);
                 }
-            }else if(funcdll=="datatypeconvert1.dll"){
+            }else if(funcdll=="dspatatypeconvert.dll"){
                 pluginInputArgList.clear();
                 for(int j=1;j<DataFlowArg[i].size();j++){
                     pluginInputArgList.push_back(DataFlowArg[i][j]);
@@ -220,7 +229,7 @@ void SuperUI::assemblyline()
             }
         }else if(process=="Computation"){
             Computation *Comproc=new Computation(this->mcallback);
-            if(funcdll=="vn21.dll"){
+            if(funcdll=="vspn2.dll"){
                 pluginInputArgList.clear();
                 for(int j=1;j<DataFlowArg[i].size();j++){
                     pluginInputArgList.push_back(DataFlowArg[i][j]);
@@ -232,7 +241,7 @@ void SuperUI::assemblyline()
             }
         }else if(process=="Postprocess"){
             Postprocess *Postproc=new Postprocess(this->mcallback);
-            if(funcdll=="resample_swc1.dll"){
+            if(funcdll=="rspesample_swc.dll"){
                 pluginInputArgList.clear();
                 for(int j=1;j<DataFlowArg[i].size();j++){
                     pluginInputArgList.push_back(DataFlowArg[i][j]);
@@ -241,7 +250,7 @@ void SuperUI::assemblyline()
                     qDebug()<<"Executing NO. "<<i<<" func.";
                     Postproc->resample_swc(datamem,pluginInputArgList,j,DataFlowArg[i][0]);
                 }
-            }else if(funcdll=="sort_neuron_swc1.dll"){
+            }else if(funcdll=="ssport_neuron_swc.dll"){
                 pluginInputArgList.clear();
                 for(int j=1;j<DataFlowArg[i].size();j++){
                     pluginInputArgList.push_back(DataFlowArg[i][j]);
@@ -272,6 +281,65 @@ void SuperUI::assemblyline()
             saveswcresult(datamem,j);
         }
     }
+}
+
+void SuperUI::initbatchrun(const V3DPluginArgList &input, V3DPluginArgList &output)
+{
+    inputfile=((vector<char*> *)(input.at(0).p))->at(0);                    //input.at(0)
+    qinputfile=QString(inputfile);
+    inputlist=getNames(qinputfile);
+
+    outputfile=((vector<char*> *)(output.at(0).p))->at(0);
+    paras=(*(vector<char*> *)(input.at(1).p));
+//    for(auto &name :inputlist)
+//        qDebug()<<name;
+    //    qDebug()<<outputfile;
+}
+
+void SuperUI::batchrun()
+{
+    char* plugin=paras[0];
+    char* funcname=paras[1];
+    char* suffix=paras[2];
+    V3DPluginArgItem Input, InputParam, Output;
+    V3DPluginArgList pluginInputList, pluginOutputList;
+    vector<char *> inputparam;
+    vector<char *> INput;
+    vector<char *> OUTput;
+    for(int i=3;i<paras.size();i++){
+        inputparam.emplace_back(paras[i]);
+    }
+
+    for(int i=0;i<inputlist.size();i++){
+        QString inputname,outputname;
+        inputname=QString(inputfile)+"\\"+inputlist[i];
+        outputname=QString(outputfile)+"\\"+inputlist[i]+"."+suffix;
+        char *input=inputname.toLatin1().data();
+        char *output=outputname.toLatin1().data();
+        INput.clear();
+        OUTput.clear();
+
+        INput.push_back(input);
+        OUTput.push_back(output);
+
+        Input.type="input";
+        Input.p= (void*)(&INput);
+
+        Output.type="output";
+        Output.p= (void*)(&OUTput);
+
+        InputParam.type="InputParam";
+        InputParam.p= (void*)(&inputparam);
+
+        pluginInputList.push_back(Input);
+        pluginInputList.push_back(InputParam);
+
+        pluginOutputList.push_back(Output);
+
+        this->mcallback->callPluginFunc(plugin,funcname,pluginInputList,pluginOutputList);
+    }
+
+
 }
 
 QString SuperUI::finddll(char *funcname)
