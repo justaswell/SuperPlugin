@@ -15,6 +15,7 @@
 #include "Postprocess.h"
 #include "data_io.h"
 //#include "dataflow.h"
+#include "command.h"
 
 using std::unordered_map;
 
@@ -28,6 +29,7 @@ public:
         datapath=QFileDialog::getExistingDirectory(this,"data_path","d:");
         this->drawlayout();
         datamem=new DataFlow();
+        initmap();
     }
     explicit SuperUI(V3DPluginCallback2 & callback,const V3DPluginArgList & input, V3DPluginArgList & output, QString funcname ){
         this->mcallback=&callback;
@@ -39,9 +41,13 @@ public:
         confirm=nullptr;
         datamem=nullptr;
         preproc=nullptr;
+        cmd=new Command(callback);
         processcmd(input,output,funcname);
 
     }
+
+    Command *cmd;
+
 
     void drawlayout(){
         this->setFixedSize(480,360);
@@ -67,14 +73,15 @@ public:
     void initautoproduce(const V3DPluginArgList & input, V3DPluginArgList & output);
     void initmap();
     void assemblyline();
+    void assemblyline(DataFlow *databatch,vector<vector<char *>> parabatch, QString outresult,QString otpath);
 
     //batchrun init
     void initbatchrun(const V3DPluginArgList & input, V3DPluginArgList & output);
     void batchrun();
 
     QString finddll(char * funcname);
-    void saveimgresult(DataFlow* data,int i);
-    void saveswcresult(DataFlow* data,int i);
+    void saveimgresult(DataFlow* data,int i,QString otpath);
+    void saveswcresult(DataFlow* data,int i,QString otpath);
 public slots:
     void click_yes();
 
